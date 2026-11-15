@@ -1,0 +1,262 @@
+<!-- ===== COOL UPGRADE · paste this whole block right before </body> in your file ===== -->
+<style>
+  /* canvas for confetti + cursor sparks */
+  #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 2000; pointer-events: none; }
+
+  /* scroll progress */
+  #prog { position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 1999; background: var(--red); border-bottom: 3px solid var(--line);
+    transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; }
+
+  /* ticker */
+  .ticker { overflow: hidden; border-bottom: var(--b) solid var(--line); background: var(--inv); color: var(--on-inv); white-space: nowrap; }
+  .ticker-in { display: inline-flex; animation: tick 28s linear infinite; will-change: transform; }
+  .ticker:hover .ticker-in { animation-play-state: paused; }
+  .ticker span { padding: 9px 22px; font-size: 12px; font-weight: 900; letter-spacing: .22em; text-transform: uppercase; }
+  .ticker span:nth-child(3n+1) { color: var(--idx); }
+  .ticker .clk { font-family: var(--mono); letter-spacing: .1em; }
+  @keyframes tick { to { transform: translateX(-50%); } }
+
+  /* ctrl+k hint button */
+  .kbd-hint { padding: 6px 10px; font-size: 11px; letter-spacing: .14em; border-width: 3px; box-shadow: 3px 3px 0 var(--line); background: var(--card); color: var(--ink); }
+  .kbd-hint:hover { background: var(--yellow); color: #000; }
+  .kbd-hint:active { box-shadow: none; }
+
+  /* hero glitch on hover */
+  .hero h1 { cursor: default; }
+  .hero h1:hover .ln:nth-child(1) > span { animation: glitch .38s steps(2) infinite; text-shadow: -4px 0 var(--red), 4px 0 var(--violet), 6px 6px 0 #fff; }
+  .hero h1:hover .ln:nth-child(2) > span { animation: glitch2 .45s steps(2) infinite; }
+  @keyframes glitch  { 0% { transform: translate(0,0); } 25% { transform: translate(-4px,2px); } 50% { transform: translate(3px,-2px); } 75% { transform: translate(-2px,-3px); } 100% { transform: translate(0,0); } }
+  @keyframes glitch2 { 0% { transform: translate(0,0) skewX(0); } 50% { transform: translate(5px,0) skewX(-6deg); } 100% { transform: translate(0,0) skewX(0); } }
+
+  /* 3D tilt */
+  .hero-note, .result-item, .stat, .sides { will-change: transform; transition: transform .12s ease-out; }
+  .tilting { transition: transform .05s linear !important; z-index: 2; position: relative; }
+
+  /* screen shake + timer panic vignette + rainbow */
+  @keyframes shk { 0%,100% { transform: translate(0); } 20% { transform: translate(-8px,3px); } 40% { transform: translate(7px,-4px); } 60% { transform: translate(-5px,-3px); } 80% { transform: translate(4px,4px); } }
+  .shake .sheet { animation: shk .35s steps(4); }
+  @keyframes vig { 50% { box-shadow: inset 0 0 0 14px var(--red); } }
+  .panic body::after { content: ""; position: fixed; inset: 0; z-index: 1998; pointer-events: none; animation: vig .8s steps(2) infinite; box-shadow: inset 0 0 0 0 var(--red); }
+  @keyframes rainbow { to { filter: hue-rotate(360deg); } }
+  .rainbow .sheet { animation: rainbow 3s linear infinite; }
+
+  /* toasts */
+  #toasts { position: fixed; left: 20px; bottom: 20px; z-index: 2100; display: grid; gap: 12px; pointer-events: none; }
+  .toast { padding: 10px 14px; border: var(--b) solid var(--line); background: var(--yellow); color: #000; box-shadow: var(--sh-s);
+    font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; animation: toastin .2s ease-out both; }
+  .toast.out { animation: toastout .2s ease-in forwards; }
+  @keyframes toastin { from { opacity: 0; transform: translateX(-30px) rotate(-3deg); } }
+  @keyframes toastout { to { opacity: 0; transform: translateX(-30px); } }
+
+  /* command palette */
+  #pal { position: fixed; inset: 0; z-index: 2200; display: none; align-items: flex-start; justify-content: center; padding: 12vh 16px 16px; background: rgba(0,0,0,.65); }
+  #pal.open { display: flex; animation: scrim .15s ease-out both; }
+  .pal-box { width: min(640px, 100%); max-height: 70vh; display: flex; flex-direction: column; background: var(--paper); color: var(--ink); border: var(--b) solid var(--line); box-shadow: var(--sh-l); animation: pop .18s ease-out both; }
+  .pal-head { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--red); color: #000; border-bottom: var(--b) solid var(--line); font-size: 11px; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; }
+  .pal-head kbd { margin-left: auto; padding: 2px 6px; border: 2px solid #000; background: #fff; font-family: var(--mono); font-size: 11px; }
+  #palQ { width: 100%; padding: 16px 18px; border: 0; border-bottom: var(--b) solid var(--line); outline: none; background: var(--card); color: var(--ink); font: 700 18px var(--mono); }
+  #palQ:focus { background: var(--yellow); color: #000; }
+  #palList { overflow-y: auto; }
+  .pal-it { display: flex; align-items: center; gap: 14px; width: 100%; padding: 13px 18px; border: 0; border-bottom: 3px solid var(--line); box-shadow: none; background: var(--card); color: var(--ink);
+    text-align: left; justify-content: flex-start; font-size: 13px; letter-spacing: .08em; }
+  .pal-it:last-child { border-bottom: 0; }
+  .pal-it .g { min-width: 40px; padding: 2px 6px; border: 2px solid var(--line); background: var(--violet); color: #000; font-size: 10px; letter-spacing: .12em; text-align: center; }
+  .pal-it.sel, .pal-it:hover { background: var(--yellow); color: #000; box-shadow: inset 10px 0 0 #000; }
+  .pal-it:active { transform: none; }
+  .pal-none { padding: 22px; text-align: center; opacity: .6; }
+  @media (prefers-reduced-motion: reduce) { .ticker-in, .shake .sheet, .rainbow .sheet, .panic body::after { animation: none !important; } }
+</style>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div id="prog" aria-hidden="true"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<div id="pal" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="pal-box">
+    <div class="pal-head"><span>Command Palette</span><kbd>ESC</kbd></div>
+    <input id="palQ" type="text" placeholder="Type a command…  (scan, timer, night, party)" autocomplete="off" spellcheck="false" aria-label="Search commands">
+    <div id="palList"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id), root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const css = v => getComputedStyle(root).getPropertyValue(v).trim() || '#fff';
+
+  // ---------- particle engine (confetti + cursor sparks) ----------
+  const cv = $('fx'), g = cv.getContext('2d');
+  let W = 0, H = 0, P = [], raf = 0;
+  const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); };
+  size(); addEventListener('resize', size);
+  function loop() {
+    g.clearRect(0, 0, W, H);
+    P = P.filter(p => p.life > 0 && p.y < H + 40);
+    for (const p of P) {
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += p.vr; p.life--;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.globalAlpha = Math.min(1, p.life / 20);
+      g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 2, p.s, p.s);
+      g.lineWidth = 2; g.strokeStyle = p.k; g.strokeRect(-p.s / 2, -p.s / 2, p.s, p.s);
+      g.restore();
+    }
+    raf = P.length ? requestAnimationFrame(loop) : 0;
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  function burst(x, y, n = 60) {
+    if (reduce) return;
+    const cols = [css('--red'), css('--yellow'), css('--violet'), css('--ink')], k = css('--line');
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 4 + Math.random() * 10;
+      P.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 6, g: .35, r: Math.random() * 6, vr: (Math.random() - .5) * .4,
+        s: 7 + Math.random() * 9, c: cols[i % cols.length], k, life: 70 + Math.random() * 50 });
+    }
+    kick();
+  }
+  const at = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+  const rain = () => { for (let i = 0; i < 6; i++) setTimeout(() => burst(Math.random() * W, H * .2 + Math.random() * H * .3, 40), i * 140); };
+
+  // cursor spark trail
+  if (fine && !reduce) {
+    let last = 0;
+    addEventListener('pointermove', e => {
+      const t = performance.now(); if (t - last < 45 || e.pointerType !== 'mouse') return; last = t;
+      P.push({ x: e.clientX, y: e.clientY, vx: (Math.random() - .5) * 1.5, vy: Math.random() * -1, g: .08, r: 0, vr: .1, s: 5 + Math.random() * 4,
+        c: Math.random() < .5 ? css('--yellow') : css('--red'), k: css('--line'), life: 26 });
+      kick();
+    }, { passive: true });
+  }
+
+  // ---------- toast ----------
+  function toast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('toasts').appendChild(t);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 220); }, 2200);
+  }
+  const shake = () => { if (reduce) return; root.classList.remove('shake'); void root.offsetWidth; root.classList.add('shake'); setTimeout(() => root.classList.remove('shake'), 400); };
+
+  // ---------- scroll progress ----------
+  const prog = $('prog');
+  const sp = () => { const m = document.documentElement.scrollHeight - innerHeight; prog.style.transform = `scaleX(${m > 0 ? Math.min(1, scrollY / m) : 0})`; };
+  addEventListener('scroll', sp, { passive: true }); sp();
+
+  // ---------- ticker + clock ----------
+  const items = ['Item Check', 'Size Diff', 'Alarm Timer', 'Ctrl+K for commands', 'Runs 100% local', 'Time Wave 8', 'Non-Standard 1'];
+  const tk = document.createElement('div'); tk.className = 'ticker'; tk.setAttribute('aria-hidden', 'true');
+  const row = items.map(s => `<span>\u2726 ${s}</span>`).join('') + '<span class="clk">\u2726 <b data-clk>--:--:--</b></span>';
+  tk.innerHTML = `<div class="ticker-in">${row}${row}</div>`;
+  document.querySelector('.meta').after(tk);
+  const clk = () => document.querySelectorAll('[data-clk]').forEach(e => e.textContent = new Date().toLocaleTimeString([], { hour12: false }));
+  clk(); setInterval(clk, 1000);
+
+  // ---------- 3D tilt ----------
+  if (fine && !reduce) {
+    const SEL = '.hero-note, .result-item, .stat, .sides'; let cur = null;
+    const rst = el => { if (el) { el.classList.remove('tilting'); el.style.transform = ''; } };
+    document.addEventListener('pointermove', e => {
+      const el = e.target.closest && e.target.closest(SEL);
+      if (el !== cur) { rst(cur); cur = el; }
+      if (!el) return;
+      const r = el.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+      el.classList.add('tilting');
+      el.style.transform = `perspective(800px) rotateX(${(-py * 7).toFixed(2)}deg) rotateY(${(px * 9).toFixed(2)}deg)`;
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => { rst(cur); cur = null; }, true);
+  }
+
+  // ---------- reactions ----------
+  // calculator result
+  const rt = $('result-text');
+  if (rt) new MutationObserver(() => {
+    if (rt.classList.contains('same')) { const [x, y] = at(rt); burst(x, y, 90); toast('Same \u2713'); }
+    else if (rt.classList.contains('different')) { shake(); toast('Not same \u2717'); }
+  }).observe(rt, { attributes: true, attributeFilter: ['class'] });
+  // successful scan
+  const nt = $('notice'); let lastN = '';
+  if (nt) new MutationObserver(() => {
+    const t = nt.textContent;
+    if (t === lastN) return; lastN = t;
+    if (nt.classList.contains('success') && /Scan complete/.test(t)) { const [x, y] = at($('scanBtn')); burst(x, y, 70); }
+  }).observe(nt, { childList: true, subtree: true, attributes: true });
+  // copy buttons
+  new MutationObserver(ms => ms.forEach(m => {
+    const b = m.target; if (b.classList && b.classList.contains('done') && !(m.oldValue || '').includes('done')) { const [x, y] = at(b); burst(x, y, 22); }
+  })).observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true });
+  // timer states
+  const tf = $('tFace'); let ts = '';
+  if (tf) new MutationObserver(() => {
+    const s = tf.dataset.state; if (s === ts) return; ts = s;
+    root.classList.toggle('panic', s === 'low' || s === 'ringing');
+    if (s === 'ringing' || s === 'done') { const [x, y] = at(tf); burst(x, y, 100); }
+  }).observe(tf, { attributes: true, attributeFilter: ['data-state'] });
+  // timer cycles (it restarts itself): celebrate when the live-region says time's up
+  const live = $('tLive');
+  if (live) new MutationObserver(() => { if (/Time/.test(live.textContent)) { const [x, y] = at(tf); burst(x, y, 80); } }).observe(live, { childList: true, characterData: true, subtree: true });
+
+  // ---------- konami ----------
+  const KON = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']; let ki = 0;
+  addEventListener('keydown', e => {
+    if (/INPUT|TEXTAREA/.test(e.target.tagName) || e.target.isContentEditable) { ki = 0; return; }
+    ki = e.key === KON[ki] ? ki + 1 : (e.key === KON[0] ? 1 : 0);
+    if (ki === KON.length) { ki = 0; const on = root.classList.toggle('rainbow'); rain(); toast(on ? 'Rainbow mode on' : 'Rainbow mode off'); }
+  });
+
+  // ---------- command palette ----------
+  const pal = $('pal'), q = $('palQ'), list = $('palList');
+  const click = id => { const e = $(id); if (e) e.click(); };
+  const goTab = v => () => { const t = document.querySelector(`.tab[data-view="${v}"]`); if (t) t.click(); };
+  const CMDS = [
+    ['GO', 'Item Check', goTab('scanner')], ['GO', 'Size Calculator', goTab('calc')], ['GO', 'Timer', goTab('timer')],
+    ['ITEM', 'Load example & scan', () => { goTab('scanner')(); click('exampleBtn'); }],
+    ['ITEM', 'Scan seeds', () => { goTab('scanner')(); click('scanBtn'); }],
+    ['ITEM', 'Copy all seeds', () => click('copyAllBtn')],
+    ['ITEM', 'Save to history', () => click('saveHistBtn')],
+    ['ITEM', 'Open history', () => click('histBtn')],
+    ['ITEM', 'Clear everything', () => { goTab('scanner')(); click('clearBtn'); }],
+    ['CALC', 'Show calculation rules', () => { goTab('calc')(); click('rulesBtn'); }],
+    ['CALC', 'Calculate difference', () => click('calculate')],
+    ...[['bag', 'Bags'], ['clothing', 'Clothing fabric weight'], ['metal', 'Precious metal weight'], ['accessory', 'Accessory size'], ['belt', 'Belts & ropes'], ['warehouse', 'Warehouse weight']]
+      .map(([k, n]) => ['CALC', 'Category: ' + n, () => { goTab('calc')(); const b = document.querySelector(`.category-btn[data-category="${k}"]`); if (b) b.click(); }]),
+    ['TIME', 'Start / pause timer', () => { goTab('timer')(); click('tStart'); }],
+    ['TIME', 'Reset timer', () => click('tReset')],
+    ['TIME', 'Timer: 0:30', () => { goTab('timer')(); const b = document.querySelector('[data-preset="30"]'); if (b) b.click(); }],
+    ['TIME', 'Timer: 1:00', () => { goTab('timer')(); const b = document.querySelector('[data-preset="60"]'); if (b) b.click(); }],
+    ['TIME', 'Timer: 1:20', () => { goTab('timer')(); const b = document.querySelector('[data-preset="80"]'); if (b) b.click(); }],
+    ['UI', 'Toggle night mode', () => click('themeToggle')],
+    ['UI', 'Random color palette', () => { const b = [...document.querySelectorAll('[data-pre]')]; if (b.length) b[Math.floor(Math.random() * b.length)].click(); }],
+    ['UI', 'Reset colors', () => click('colorsReset')],
+    ['UI', 'Open notes', () => click('notesTab')],
+    ['UI', 'Open colors', () => click('colorsTab')],
+    ['UI', 'Scroll to top', () => scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })],
+    ['FUN', 'Confetti party', rain],
+    ['FUN', 'Rainbow mode', () => { const on = root.classList.toggle('rainbow'); toast(on ? 'Rainbow mode on' : 'Rainbow mode off'); }]
+  ];
+  let shown = [], si = 0;
+  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  function draw() {
+    const t = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    shown = CMDS.filter(c => t.every(w => (c[0] + ' ' + c[1]).toLowerCase().includes(w)));
+    si = Math.min(si, Math.max(0, shown.length - 1));
+    list.innerHTML = shown.length ? shown.map((c, i) => `<button type="button" class="pal-it${i === si ? ' sel' : ''}" data-i="${i}"><span class="g">${c[0]}</span>${esc(c[1])}</button>`).join('') : '<div class="pal-none">No matching command</div>';
+    const s = list.querySelector('.sel'); if (s) s.scrollIntoView({ block: 'nearest' });
+  }
+  const openPal = () => { pal.classList.add('open'); q.value = ''; si = 0; draw(); q.focus(); };
+  const closePal = () => pal.classList.remove('open');
+  const run = i => { const c = shown[i]; if (!c) return; closePal(); setTimeout(c[2], 0); };
+  q.addEventListener('input', () => { si = 0; draw(); });
+  q.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); si = Math.min(shown.length - 1, si + 1); draw(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); si = Math.max(0, si - 1); draw(); }
+    else if (e.key === 'Enter') { e.preventDefault(); run(si); }
+    else if (e.key === 'Escape') { e.preventDefault(); closePal(); }
+  });
+  list.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) run(+b.dataset.i); });
+  pal.addEventListener('click', e => { if (e.target === pal) closePal(); });
+  addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); pal.classList.contains('open') ? closePal() : openPal(); }
+  });
+  // hint button in the nav
+  const end = document.querySelector('.meta-end');
+  if (end) { const b = document.createElement('button'); b.type = 'button'; b.className = 'kbd-hint'; b.textContent = /Mac/i.test(navigator.platform) ? '\u2318 K' : 'Ctrl K'; b.title = 'Command palette'; b.addEventListener('click', openPal); end.prepend(b); }
+})();
+</script>
+<!-- ===== END COOL UPGRADE ===== -->
